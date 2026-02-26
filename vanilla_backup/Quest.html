@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>아이온2 숙제 매니저</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div class="top-bar">
+        <div class="header-left">
+            <div style="font-size: 20px; font-weight: 700;">아이온2 숙제 매니저</div>
+            <div class="timer-display">
+                <div class="timer-item"><span>일일:</span><b id="dailyTimer">00:00:00</b></div>
+                <div class="timer-item"><span>수요:</span><b id="wednesdayTimer">0d 00:00:00</b></div>
+            </div>
+        </div>
+        <div class="char-controls">
+            <div class="membership-group">
+                <input type="checkbox" id="membershipToggle" onchange="toggleMembership()"
+                    style="width:16px; height:16px; cursor:pointer;">
+                <label for="membershipToggle" style="color:var(--text-sub); font-size:12px; cursor:pointer;">멤버십</label>
+                <span id="membershipDateDisplay"
+                    style="color:var(--accent-cyan); font-size:11px; cursor:pointer; margin-left:2px; min-width:65px;"
+                    onclick="openMembershipModal(true)"></span>
+            </div>
+
+            <div style="width:1px; height:16px; background:var(--border-color); margin:0 5px;"></div>
+
+            <button class="btn-round" style="width:auto; padding:0 8px; font-size:12px; background:#444;"
+                onclick="openNotificationSettings()">콘텐츠 알림 설정</button>
+
+            <button class="btn-round" onclick="removeCharacter()">-</button>
+            <button class="btn-round" onclick="addCharacter()">+</button>
+        </div>
+    </div>
+
+    <div id="characterGrid" class="character-grid"></div>
+
+    <div class="backup-bar">
+        <button class="backup-btn" onclick="exportData()">데이터 백업(복사)</button>
+        <button class="backup-btn" onclick="importData()">데이터 복구(붙여넣기)</button>
+        <button class="backup-btn download" onclick="downloadBackup()">데이터 파일로 저장(.json)</button>
+    </div>
+
+    <script src="scripts.js"></script>
+    <div class="modal-overlay" id="membership-date-overlay"
+        onclick="handleModalOverlayClick(event, 'membership-date-overlay')">
+        <div class="modal-menu" onclick="event.stopPropagation()">
+            <div
+                style="text-align:center; margin-bottom:10px; font-weight:bold; color:var(--accent-blue); font-size:12px;">
+                멤버십 시작 날짜 입력</div>
+            <div style="text-align:center; font-size:12px; color:#aaa; margin-bottom:10px;">
+                시작 날짜로부터 28일 후 자동 해제됩니다.<br>(오늘 기준 최대 -27일까지 입력 가능)
+            </div>
+            <input type="date" id="membership-date-input" class="modal-input"
+                style="width:100%; box-sizing:border-box;">
+            <button class="modal-btn" onclick="saveMembershipDate()"
+                style="background:var(--accent-blue); color:white; border:none;">확정</button>
+            <button class="modal-btn cancel" onclick="closeMembershipModal()">취소</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="notification-settings-overlay"
+        onclick="handleModalOverlayClick(event, 'notification-settings-overlay')">
+        <div class="modal-menu" onclick="event.stopPropagation()">
+            <div
+                style="text-align:center; margin-bottom:10px; font-weight:bold; color:var(--accent-blue); font-size:12px;">
+                콘텐츠 알림 세부 설정</div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+                <div
+                    style="display:flex; align-items:center; gap:10px; justify-content:space-between; padding:5px 10px;">
+                    <label for="shugoNotifyToggle" style="color:#ddd; font-size:14px;">슈고페스타 알림</label>
+                    <input type="checkbox" id="shugoNotifyToggle" onchange="toggleShugoNotify()"
+                        style="width:20px; height:20px;">
+                </div>
+                <div
+                    style="display:flex; align-items:center; gap:10px; justify-content:space-between; padding:5px 10px;">
+                    <label for="dimensionNotifyToggle" style="color:#ddd; font-size:14px;">차원침공 알림</label>
+                    <input type="checkbox" id="dimensionNotifyToggle" onchange="toggleDimensionNotify()"
+                        style="width:20px; height:20px;">
+                </div>
+            </div>
+            <button class="modal-btn" onclick="closeModal('notification-settings-overlay')"
+                style="background:var(--accent-blue); color:white; border:none;">닫기</button>
+        </div>
+    </div>
+</body>
+
+</html>
