@@ -42,6 +42,13 @@ const CharacterCard = React.memo(({ index, data, updateData, onDragStart, onDrag
     // Helpers from vanilla scripts.js
     const closeModal = () => setActiveModal(null);
 
+    // 모달 오픈 시 스크롤 방지 제어
+    useEffect(() => {
+        if (activeModal) document.body.classList.add('modal-open');
+        else document.body.classList.remove('modal-open');
+        return () => document.body.classList.remove('modal-open');
+    }, [activeModal]);
+
     const handleUpdate = (newData) => {
         updateData(newData);
     };
@@ -372,9 +379,9 @@ const CharacterCard = React.memo(({ index, data, updateData, onDragStart, onDrag
                                 setEditingKey('ticket_exploration');
                                 setEditingMax(20);
                                 setTicketBaseVal(ticket_exploration || 0);
-                                setTicketExtraVal(0);
+                                setTicketExtraVal(ticket_exploration_extra || 0);
                                 setActiveModal('ticketEdit');
-                            }}>{ticket_exploration || 0}</span>
+                            }}>{ticket_exploration || 0}{ticket_exploration_extra > 0 ? <span style={{ color: 'var(--accent-cyan)', fontSize: '12px' }}>(+{ticket_exploration_extra})</span> : ''}</span>
                             <button className="counter-btn btn-plus" onClick={(e) => updateExplorationTicket(1, e)}>+</button>
                         </div>
                     </div>
@@ -448,7 +455,7 @@ const CharacterCard = React.memo(({ index, data, updateData, onDragStart, onDrag
                 <div className="modal-overlay show" onClick={closeModal}>
                     <div className="modal-menu" onClick={e => e.stopPropagation()}>
                         <div style={{ textAlign: 'center', marginBottom: '10px', fontWeight: 'bold', color: 'var(--accent-blue)', fontSize: '12px' }}>캐릭터 이름 변경</div>
-                        <input type="text" className="modal-input" value={renameVal} onChange={e => setRenameVal(e.target.value)} onFocus={e => e.target.select()} onKeyPress={e => e.key === 'Enter' && (handleUpdate({ name: renameVal }), closeModal())} autoFocus />
+                        <input type="text" className="modal-input" value={renameVal} onChange={e => setRenameVal(e.target.value)} onFocus={e => e.target.select()} onKeyDown={e => e.key === 'Enter' && (handleUpdate({ name: renameVal }), closeModal())} autoFocus />
                         <button className="modal-btn" style={{ background: 'var(--accent-blue)', color: 'white', border: 'none' }} onClick={() => { handleUpdate({ name: renameVal }); closeModal(); }}>확인</button>
                         <button className="modal-btn cancel" onClick={closeModal}>취소</button>
                     </div>
@@ -462,11 +469,11 @@ const CharacterCard = React.memo(({ index, data, updateData, onDragStart, onDrag
                         <div className="odd-form-row">
                             <div className="odd-input-group">
                                 <label className="odd-input-label">기본 에너지</label>
-                                <input type="number" className="modal-input" value={oddBaseVal} onChange={e => setOddBaseVal(parseInt(e.target.value) || 0)} onFocus={e => e.target.select()} autoFocus />
+                                <input type="number" className="modal-input" value={oddBaseVal} onChange={e => setOddBaseVal(parseInt(e.target.value) || 0)} onFocus={e => e.target.select()} onKeyDown={e => e.key === 'Enter' && (handleUpdate({ odd_energy: oddBaseVal, odd_energy_extra: oddExtraVal }), closeModal())} autoFocus />
                             </div>
                             <div className="odd-input-group">
                                 <label className="odd-input-label">추가 에너지</label>
-                                <input type="number" className="modal-input" value={oddExtraVal} onChange={e => setOddExtraVal(parseInt(e.target.value) || 0)} onFocus={e => e.target.select()} />
+                                <input type="number" className="modal-input" value={oddExtraVal} onChange={e => setOddExtraVal(parseInt(e.target.value) || 0)} onFocus={e => e.target.select()} onKeyDown={e => e.key === 'Enter' && (handleUpdate({ odd_energy: oddBaseVal, odd_energy_extra: oddExtraVal }), closeModal())} />
                             </div>
                         </div>
                         <button className="modal-btn" style={{ background: 'var(--accent-blue)', color: 'white', border: 'none' }} onClick={() => { handleUpdate({ odd_energy: oddBaseVal, odd_energy_extra: oddExtraVal }); closeModal(); }}>확인</button>
@@ -480,7 +487,7 @@ const CharacterCard = React.memo(({ index, data, updateData, onDragStart, onDrag
                     <div className="modal-menu" onClick={e => e.stopPropagation()}>
                         <div style={{ textAlign: 'center', marginBottom: '10px', fontWeight: 'bold', color: 'var(--accent-gold)', fontSize: '12px' }}>⚠️ 오드 에너지 부족</div>
                         <div style={{ textAlign: 'center', fontSize: '12px', color: '#ddd', marginBottom: '10px' }}>오드 에너지가 부족합니다.<br />현재 오드 에너지를 입력해주세요. (80 필요)</div>
-                        <input type="number" className="modal-input" value={insufficientVal} onChange={e => setInsufficientVal(e.target.value)} onFocus={e => e.target.select()} placeholder="현재 에너지 입력" autoFocus />
+                        <input type="number" className="modal-input" value={insufficientVal} onChange={e => setInsufficientVal(e.target.value)} onFocus={e => e.target.select()} onKeyDown={e => e.key === 'Enter' && solveInsufficient()} placeholder="현재 에너지 입력" autoFocus />
                         <button className="modal-btn" style={{ background: 'var(--accent-blue)', color: 'white', border: 'none' }} onClick={solveInsufficient}>확인</button>
                         <button className="modal-btn cancel" onClick={closeModal}>취소</button>
                     </div>
@@ -496,7 +503,7 @@ const CharacterCard = React.memo(({ index, data, updateData, onDragStart, onDrag
                         <div style={{ display: 'flex', flexDirection: 'column', align_items: 'center', gap: '15px', marginBottom: '15px' }}>
                             <div className="odd-input-group" style={{ width: '100%', alignItems: 'center' }}>
                                 <label className="odd-input-label">사용할 아이템 수량</label>
-                                <input type="number" className="modal-input" style={{ textAlign: 'center', fontSize: '18px' }} value={oddItemQty} onChange={e => setOddItemQty(e.target.value)} onFocus={e => e.target.select()} autoFocus />
+                                <input type="number" className="modal-input" style={{ textAlign: 'center', fontSize: '18px' }} value={oddItemQty} onChange={e => setOddItemQty(e.target.value)} onFocus={e => e.target.select()} onKeyDown={e => e.key === 'Enter' && ((() => { const qty = parseInt(oddItemQty) || 0; if (qty > 0) { handleUpdate({ odd_energy_extra: (odd_energy_extra || 0) + qty * (editingOddType === 'small' ? 10 : 40) }); } closeModal(); })())} autoFocus />
                             </div>
                             <div style={{ color: 'var(--accent-green)', fontSize: '16px', fontWeight: 'bold', textAlign: 'center' }}>획득: +{(parseInt(oddItemQty) || 0) * (editingOddType === 'small' ? 10 : 40)} 에너지</div>
                         </div>
@@ -520,18 +527,16 @@ const CharacterCard = React.memo(({ index, data, updateData, onDragStart, onDrag
                         <div className="odd-form-row">
                             <div className="odd-input-group">
                                 <label className="odd-input-label">현재 보유량</label>
-                                <input type="number" className="modal-input" value={ticketBaseVal} onChange={e => setTicketBaseVal(parseInt(e.target.value) || 0)} onFocus={e => e.target.select()} autoFocus />
+                                <input type="number" className="modal-input" value={ticketBaseVal} onChange={e => setTicketBaseVal(parseInt(e.target.value) || 0)} onFocus={e => e.target.select()} onKeyDown={e => e.key === 'Enter' && (handleUpdate({ [editingKey]: ticketBaseVal, [editingKey + '_extra']: ticketExtraVal }), closeModal())} autoFocus />
                             </div>
                             <div className="odd-input-group">
-                                <label className="odd-input-label">추가 획득량</label>
-                                <input type="number" className="modal-input" value={ticketExtraVal} onChange={e => setTicketExtraVal(parseInt(e.target.value) || 0)} onFocus={e => e.target.select()} />
+                                <label className="odd-input-label">추가 획득량 (+)</label>
+                                <input type="number" className="modal-input" value={ticketExtraVal} onChange={e => setTicketExtraVal(parseInt(e.target.value) || 0)} onFocus={e => e.target.select()} onKeyDown={e => e.key === 'Enter' && (handleUpdate({ [editingKey]: ticketBaseVal, [editingKey + '_extra']: ticketExtraVal }), closeModal())} />
                             </div>
                         </div>
                         <button className="modal-btn" style={{ background: 'var(--accent-blue)', color: 'white', border: 'none' }} onClick={() => {
                             const next = { [editingKey]: ticketBaseVal };
-                            if (editingKey !== 'weekly_battlefield' && editingKey !== 'dungeon' && editingKey !== 'ticket_exploration') {
-                                next[editingKey + '_extra'] = ticketExtraVal;
-                            }
+                            next[editingKey + '_extra'] = ticketExtraVal;
                             handleUpdate(next);
                             closeModal();
                         }}>확인</button>
@@ -559,6 +564,44 @@ const CharacterCard = React.memo(({ index, data, updateData, onDragStart, onDrag
                                 ))}
                                 <div className="settings-section-divider">주간 항목</div>
                                 {[{ key: 'weekly_directive', label: '지령서' }, { key: 'weekly_abyss_directive', label: '어비스 지령' }, { key: 'weekly_abyss_supply', label: '어비스 주간보급' }, { key: 'weekly_battlefield', label: '전장' }, { key: 'weekly_ak', label: '각성전' }, { key: 'weekly_tb', label: '토벌전' }].map(item => (
+                                    <div key={item.key} className="settings-item">
+                                        <span>{item.label}</span>
+                                        <input type="checkbox" checked={!hidden_keys?.includes(item.key)} onChange={() => {
+                                            const next = hidden_keys?.includes(item.key) ? hidden_keys.filter(k => k !== item.key) : [...(hidden_keys || []), item.key];
+                                            handleUpdate({ hidden_keys: next });
+                                        }} />
+                                    </div>
+                                ))}
+                                <div className="settings-section-divider">아티펙트 회랑</div>
+                                {[{ key: 'abyss_lower', label: '어비스 하층' }, { key: 'abyss_middle', label: '어비스 중층' }].map(item => (
+                                    <div key={item.key} className="settings-item">
+                                        <span>{item.label}</span>
+                                        <input type="checkbox" checked={!hidden_keys?.includes(item.key)} onChange={() => {
+                                            const next = hidden_keys?.includes(item.key) ? hidden_keys.filter(k => k !== item.key) : [...(hidden_keys || []), item.key];
+                                            handleUpdate({ hidden_keys: next });
+                                        }} />
+                                    </div>
+                                ))}
+                                <div className="settings-section-divider">오드 에너지</div>
+                                {[{ key: 'weekly_odd_buy', label: '오드 구매' }, { key: 'weekly_odd_craft', label: '오드 제작' }].map(item => (
+                                    <div key={item.key} className="settings-item">
+                                        <span>{item.label}</span>
+                                        <input type="checkbox" checked={!hidden_keys?.includes(item.key)} onChange={() => {
+                                            const next = hidden_keys?.includes(item.key) ? hidden_keys.filter(k => k !== item.key) : [...(hidden_keys || []), item.key];
+                                            handleUpdate({ hidden_keys: next });
+                                        }} />
+                                    </div>
+                                ))}
+                                <div className="settings-section-divider">티켓 항목</div>
+                                {[
+                                    { key: 'conq', label: '정복 티켓' },
+                                    { key: 'trans', label: '초월 티켓' },
+                                    { key: 'ticket_nightmare', label: '악몽 티켓' },
+                                    { key: 'ticket_shugo', label: '슈고페스타 티켓' },
+                                    { key: 'ticket_dimension', label: '차원침공 티켓' },
+                                    { key: 'dungeon', label: '일일 던전' },
+                                    { key: 'ticket_exploration', label: '탐험 티켓' }
+                                ].map(item => (
                                     <div key={item.key} className="settings-item">
                                         <span>{item.label}</span>
                                         <input type="checkbox" checked={!hidden_keys?.includes(item.key)} onChange={() => {
