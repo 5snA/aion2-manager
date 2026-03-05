@@ -10,6 +10,53 @@ export function formatTimeDiff(ms, showDays = false) {
     return showDays && d > 0 ? `${d}일 ${hms}` : hms;
 }
 
+export function formatMembershipDate(dateStr) {
+    if (!dateStr) return '날짜 미설정';
+    const startDate = new Date(dateStr);
+    const today = new Date();
+
+    // Normalize times to midnight for accurate day difference
+    startDate.setHours(0, 0, 0, 0);
+    const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    // 멤버십은 결제일 기준 28일 유지
+    const expireDate = new Date(startDate);
+    expireDate.setDate(startDate.getDate() + 28);
+
+    const diffTime = expireDate - normalizedToday;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
+    const startDay = String(startDate.getDate()).padStart(2, '0');
+
+    const month = String(expireDate.getMonth() + 1).padStart(2, '0');
+    const day = String(expireDate.getDate()).padStart(2, '0');
+
+    if (diffDays < 0) {
+        return `${startMonth}/${startDay} ~ ${month}/${day} (만료됨)`;
+    } else if (diffDays === 0) {
+        return `${startMonth}/${startDay} ~ ${month}/${day} (D-Day)`;
+    } else {
+        return `${startMonth}/${startDay} ~ ${month}/${day} (D-${diffDays})`;
+    }
+}
+
+export function isMembershipExpiringSoon(dateStr) {
+    if (!dateStr) return false;
+    const startDate = new Date(dateStr);
+    const today = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const expireDate = new Date(startDate);
+    expireDate.setDate(startDate.getDate() + 28);
+
+    const diffTime = expireDate - normalizedToday;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays <= 3; // 3일 이하 남았을 때 만료 임박으로 처리
+}
+
 export function getDailyRemaining(now, targetHour = 5) {
     let target = new Date(now);
     target.setHours(targetHour, 0, 0, 0);

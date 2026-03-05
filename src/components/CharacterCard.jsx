@@ -12,7 +12,8 @@ const CharacterCard = React.memo(({ index, data, updateData, onDragStart, onDrag
         ticket_nightmare, ticket_nightmare_extra,
         ticket_shugo, ticket_shugo_extra,
         ticket_dimension, ticket_dimension_extra,
-        ticket_exploration, dungeon,
+        ticket_exploration, ticket_exploration_extra,
+        dungeon, dungeon_extra,
         abyss_lower, abyss_middle,
         hidden_keys, custom_quests, extra_daily, extra_weekly
     } = data;

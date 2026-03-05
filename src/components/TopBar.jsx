@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatMembershipDate } from '../utils/timeUtils';
 
 function TopBar({ dailyStr, weeklyStr, isMembership, membershipDate, isMembershipExpiringSoon, onAdd, onRemove, onOpenSettings, setMembership, setMembershipDate }) {
     const [showDateInput, setShowDateInput] = useState(false);
@@ -15,40 +16,54 @@ function TopBar({ dailyStr, weeklyStr, isMembership, membershipDate, isMembershi
 
             <div className="char-controls">
                 {/* 멤버십 표시 영역 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', borderRight: '1px solid #444', paddingRight: '10px', marginRight: '4px' }}>
-                    <input
-                        type="checkbox"
-                        id="membershipCheck"
-                        checked={isMembership}
-                        onChange={e => setMembership(e.target.checked)}
-                        style={{ width: '14px', height: '14px', accentColor: 'var(--accent-cyan)', cursor: 'pointer' }}
-                    />
-                    <label htmlFor="membershipCheck" style={{ fontSize: '12px', color: isMembership ? 'var(--accent-cyan)' : '#777', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                        💎 멤버십
-                    </label>
-                    {isMembership && (
-                        <>
-                            <span
-                                style={{ fontSize: '11px', color: isMembershipExpiringSoon ? 'var(--accent-red)' : 'var(--accent-cyan)', cursor: 'pointer', textDecoration: 'underline' }}
-                                onClick={() => setShowDateInput(v => !v)}
-                                title="날짜 변경"
-                            >
-                                {membershipDate || '날짜 미설정'}
-                            </span>
-                            {showDateInput && (
-                                <input
-                                    type="date"
-                                    value={membershipDate}
-                                    autoFocus
-                                    onFocus={e => e.target.select()}
-                                    onChange={e => { setMembershipDate(e.target.value); setShowDateInput(false); }}
-                                    onBlur={() => setShowDateInput(false)}
-                                    className="modal-input"
-                                    style={{ padding: '2px 6px', fontSize: '11px', width: 'auto' }}
-                                />
-                            )}
-                        </>
-                    )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRight: '1px solid #444', paddingRight: '12px', marginRight: '4px' }}>
+
+                    {/* 날짜 표시 영역 (좌측) */}
+                    <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+                        <span
+                            style={{
+                                fontSize: '11px',
+                                color: (!isMembership || !membershipDate) ? '#777' : (isMembershipExpiringSoon ? 'var(--accent-red)' : 'var(--accent-cyan)'),
+                                cursor: 'pointer',
+                                textDecoration: 'underline',
+                                fontWeight: 'bold'
+                            }}
+                            onClick={() => setShowDateInput(v => !v)}
+                            title="시작일(결제일) 설정"
+                        >
+                            {formatMembershipDate(membershipDate)}
+                        </span>
+                        {showDateInput && (
+                            <input
+                                type="date"
+                                value={membershipDate || ''}
+                                autoFocus
+                                onFocus={e => e.target.select()}
+                                onKeyDown={e => e.key === 'Enter' && setShowDateInput(false)}
+                                onChange={e => { setMembershipDate(e.target.value); setShowDateInput(false); }}
+                                onBlur={() => setShowDateInput(false)}
+                                className="modal-input"
+                                style={{
+                                    position: 'absolute',
+                                    top: '100%',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    marginTop: '4px',
+                                    padding: '2px 4px',
+                                    fontSize: '11px',
+                                    width: '110px',
+                                    zIndex: 100
+                                }}
+                            />
+                        )}
+                    </div>
+
+                    {/* 멤버십 배지 (우측) */}
+                    <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setMembership(!isMembership)}>
+                        <div className={`status-badge ${isMembership ? 'complete' : 'incomplete'}`} style={{ padding: '4px 12px', fontSize: '11px', fontWeight: 'bold', minWidth: '70px', textAlign: 'center' }}>
+                            💎 멤버십
+                        </div>
+                    </div>
                 </div>
 
                 <button className="btn-round" style={{ width: 'auto', padding: '0 8px', fontSize: '12px', background: '#444' }} onClick={onOpenSettings}>콘텐츠 알림 설정</button>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CONFIG, STORAGE_KEYS } from './constants';
-import { processAutoLogic, getDailyRemaining, getWeeklyRemaining, formatTimeDiff } from './utils/timeUtils';
+import { processAutoLogic, getDailyRemaining, getWeeklyRemaining, formatTimeDiff, isMembershipExpiringSoon } from './utils/timeUtils';
 import TopBar from './components/TopBar';
 import CharacterCard from './components/CharacterCard';
 import SettingsModal from './components/SettingsModal';
@@ -65,8 +65,8 @@ function App() {
       setWeeklyTime(getWeeklyRemaining(now, CONFIG.WeeklyResetDay));
 
       // Process heavy logic: only every minute (on 0 seconds)
+      const nowTs = now.getTime();
       if (currentSecs === 0) {
-        const nowTs = now.getTime();
         setCharacters(prev => {
           if (isMembership && membershipDate) {
             const mDate = new Date(membershipDate).getTime();
@@ -80,6 +80,13 @@ function App() {
           return result !== null ? result : prev;  // null이면 변경 없이 유지
         });
       }
+
+      // Auto-close notifications older than 5 minutes (300,000 ms)
+      setActiveEvents(prev => {
+        if (prev.length === 0) return prev;
+        const filtered = prev.filter(e => nowTs - (e.timestamp || nowTs) < 300000);
+        return filtered.length === prev.length ? prev : filtered;
+      });
 
       // Event Tracking Logic
       if (isShugoNotify || isDimNotify) {
@@ -98,7 +105,7 @@ function App() {
                 const stableKey = `${event.id}_${type}_${now.getDate()}_${now.getHours()}_${tm}`;
                 if (!eventHistory.current[stableKey]) {
                   eventHistory.current[stableKey] = true;
-                  setActiveEvents(prev => [...prev, { ...event, type, stableKey }]);
+                  setActiveEvents(prev => [...prev, { ...event, type, stableKey, timestamp: nowTs }]);
                 }
               }
             }
@@ -188,7 +195,7 @@ function App() {
         weeklyStr={formatTimeDiff(weeklyTime, true)}
         isMembership={isMembership}
         membershipDate={membershipDate}
-        isMembershipExpiringSoon={isMembership && membershipDate && (Date.now() - new Date(membershipDate).getTime()) / (1000 * 60 * 60 * 24) >= 27}
+        isMembershipExpiringSoon={isMembership && isMembershipExpiringSoon(membershipDate)}
         onAdd={addCharacter}
         onRemove={removeCharacter}
         onOpenSettings={() => setIsSystemSettingsOpen(true)}
