@@ -93,6 +93,34 @@ body.modal-open {
   gap: 20px;
 }
 
+/* Text Logo Styles */
+.logo-text {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  user-select: none;
+  cursor: default;
+}
+
+.logo-aion {
+  font-size: 26px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -1.5px;
+  background: linear-gradient(90deg, #ffffff, var(--accent-blue));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 15px rgba(77, 163, 255, 0.4);
+}
+
+.logo-manager {
+  font-size: 14px;
+  font-weight: 800;
+  color: #888;
+  letter-spacing: 1.5px;
+}
+
 .timer-display {
   display: flex;
   gap: 20px;

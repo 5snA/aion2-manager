@@ -7,7 +7,10 @@ function TopBar({ dailyStr, weeklyStr, isMembership, membershipDate, isMembershi
     return (
         <header className="top-bar">
             <div className="header-left">
-                <div style={{ fontSize: '20px', fontWeight: '700' }}>아이온2 숙제 매니저</div>
+                <div className="logo-text">
+                    <span className="logo-aion">AION2</span>
+                    <span className="logo-manager">MANAGER</span>
+                </div>
                 <div className="timer-display">
                     <div className="timer-item"><span>일일:</span><b>{dailyStr}</b></div>
                     <div className="timer-item"><span>수요:</span><b>{weeklyStr}</b></div>
@@ -18,7 +21,14 @@ function TopBar({ dailyStr, weeklyStr, isMembership, membershipDate, isMembershi
                 {/* 멤버십 표시 영역 */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRight: '1px solid #444', paddingRight: '12px', marginRight: '4px' }}>
 
-                    {/* 날짜 표시 영역 (좌측) */}
+                    {/* 멤버십 배지 (좌측) */}
+                    <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setMembership(!isMembership)}>
+                        <div className={`status-badge ${isMembership ? 'complete' : 'incomplete'}`} style={{ padding: '4px 12px', fontSize: '11px', fontWeight: 'bold', minWidth: '70px', textAlign: 'center' }}>
+                            💎 멤버십
+                        </div>
+                    </div>
+
+                    {/* 날짜 표시 영역 (우측) */}
                     <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
                         <span
                             style={{
@@ -56,13 +66,6 @@ function TopBar({ dailyStr, weeklyStr, isMembership, membershipDate, isMembershi
                                 }}
                             />
                         )}
-                    </div>
-
-                    {/* 멤버십 배지 (우측) */}
-                    <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setMembership(!isMembership)}>
-                        <div className={`status-badge ${isMembership ? 'complete' : 'incomplete'}`} style={{ padding: '4px 12px', fontSize: '11px', fontWeight: 'bold', minWidth: '70px', textAlign: 'center' }}>
-                            💎 멤버십
-                        </div>
                     </div>
                 </div>
 
